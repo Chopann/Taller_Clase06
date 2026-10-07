@@ -1,8 +1,7 @@
-# ANALISIS — Taller 5: Lista con Navegación, Búsqueda y una Pila que No Debe Explotar
+# ANALISIS — Taller 6: Lista con Navegación, Búsqueda y una Pila que No Debe Explotar
 
 **Curso:** Programación para Dispositivos Móviles — Universidad de Caldas
 **Tema de la lista:** Videojuegos favoritos
-**Dispositivo de prueba:** Xiaomi 2201117SL, Android 13
 
 ---
 
@@ -18,16 +17,18 @@ Predije que si se toca una tarjeta varias veces antes de que se abra el detalle,
 
 ## 2. Evidencia del bug (Paso 3.1)
 
-**Cómo lo reproduje:** ejecuté la app en el dispositivo físico y toqué 3 veces, muy rápido, la misma tarjeta (la del elemento con id 2) antes de que terminara de aparecer la pantalla de detalle.
+**Cómo lo reproduje:** con `launchSingleTop` desactivado (comentado), ejecuté la app en el dispositivo físico y toqué 3 veces, muy rápido, la misma tarjeta (la del elemento con id 2) antes de que terminara de aparecer la pantalla de detalle.
 
 **Qué observé en Logcat (filtro `NAV`):**
 
-Aparecieron 3 líneas `Detalle 2 entró a la composición` en un lapso de unos 220 milisegundos (16:39:02.556, 16:39:02.677 y 16:39:02.774).
+Aparecieron 3 líneas `Detalle 2 entró a la composición` en unos 350 milisegundos (15:15:10.412, 15:15:10.655 y 15:15:10.765), una por cada toque.
 
 - Número de toques: **3**
-- Número de líneas en Logcat: **3**
+- Líneas en Logcat generadas por los toques: **3**
 - Al presionar "Volver" no regresé a la lista, sino al mismo detalle de la tarjeta que había presionado.
 - Veces que tuve que presionar "Volver" para llegar a la lista: **3** (la misma cantidad de toques).
+
+**Las dos líneas posteriores:** en la captura aparecen dos líneas más de `Detalle 2` (15:15:13.624 y 15:15:14.719), unos segundos después. Corresponden a las presiones de "Volver": cuando se quita el detalle del tope, el detalle que estaba debajo vuelve a mostrarse y entra de nuevo a la composición. Las dos primeras presiones dejan al descubierto un detalle (2 líneas) y la tercera presión llega a la lista, que no genera línea `NAV`. Esto coincide con las 3 presiones necesarias y confirma que había 3 detalles apilados.
 
 **Captura de pantalla (antes de la corrección):**
 
