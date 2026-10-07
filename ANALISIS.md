@@ -2,6 +2,7 @@
 
 **Curso:** Programación para Dispositivos Móviles — Universidad de Caldas
 **Tema de la lista:** Videojuegos favoritos
+**Dispositivo de prueba:** Xiaomi 2201117SL, Android 13
 
 ---
 
@@ -31,7 +32,6 @@ Aparecieron 3 líneas `Detalle 2 entró a la composición` en un lapso de unos 2
 **Captura de pantalla (antes de la corrección):**
 
 ![Logcat con 3 líneas NAV: bug de navegación duplicada](Capturas/bug_antes.jpeg)
-
 
 **¿Mi predicción coincidió con lo observado?** Sí. Predije que se abriría la cantidad de veces que presionara y así fue: 3 toques produjeron 3 navegaciones y 3 pantallas de detalle apiladas.
 
@@ -77,19 +77,19 @@ onElementoClick = { id ->
 
 **Qué hace `launchSingleTop = true`:** antes de crear un destino nuevo, el controlador de navegación revisa cuál es el destino que está en el tope de la pila. Si es el mismo que se quiere abrir, no apila otra entrada encima, así que en el tope queda un solo detalle. Con esto se corrige la primera causa del bug (que `navigate()` apilaba sin verificar el tope). No cambia la segunda causa: la tarjeta sigue aceptando toques durante la transición, pero ahora esos toques extra ya no crean pantallas nuevas.
 
-**Evidencia después de la corrección** (3 toques rápidos sobre la misma tarjeta):
+**Evidencia después de la corrección** (una sola ejecución, 3 toques rápidos sobre la misma tarjeta, detalle id 3):
 
+- Toques: **3**
+- Líneas en Logcat: **3** (`Detalle 3 entró a la composición`, a las 15:07:04.520, 15:07:04.685 y 15:07:04.805)
 - Veces que presioné "Volver" para llegar a la lista: **1**
-- Líneas en Logcat en la 1.ª prueba (detalle id 2): **1**
-- Líneas en Logcat en la 2.ª prueba (detalle id 3): **2**, separadas por unos 75 ms
 
 | | Antes | Después |
 |---|---|---|
 | Toques | 3 | 3 |
+| Líneas en Logcat | 3 | 3 |
 | "Volver" hasta la lista | 3 | 1 |
-| Líneas en Logcat | 3 | 1 y 2 (dos pruebas) |
 
-**Nota sobre el Logcat:** el `LaunchedEffect` cuenta las veces que una entrada de detalle entra a la composición, no cuántas entradas hay en la pila. Una posible explicación de que en la 2.ª prueba aparecieran 2 líneas es que, con `launchSingleTop`, el controlador reemplaza la entrada del tope por una nueva en lugar de dejar la anterior, y esa entrada nueva vuelve a componerse. La medida más confiable de cuántas pantallas quedaron apiladas es la cantidad de veces que hay que presionar "Volver": pasó de 3 a 1, lo que confirma que la corrección funciona.
+**Nota sobre el Logcat:** el número de líneas es el mismo antes y después, pero la pila no. Esto se debe a que el `LaunchedEffect` cuenta las veces que una entrada de detalle entra a la composición, no cuántas entradas hay en la pila. Una posible explicación es que, con `launchSingleTop`, cada toque hace que el controlador reemplace la entrada del tope por una nueva, que se vuelve a componer, y por eso cada toque deja una línea aunque la pila conserve un solo detalle. En una prueba anterior con la corrección activa vi solo 2 líneas y también bastó una presión de "Volver", por lo que el número de líneas varía según cuántos toques alcanzan a registrarse. La medida confiable de cuántas pantallas quedaron apiladas es la cantidad de presiones de "Volver": pasó de 3 a 1, lo que confirma que la corrección funciona.
 
 **Captura de pantalla (después de la corrección):**
 
